@@ -1,5 +1,5 @@
 const inquirer = require("inquirer");
-const db = require("./db");
+const db = require("./db/connection");
 
 const startMenu = {
   name: "functionality",
@@ -9,9 +9,71 @@ const startMenu = {
     "Add Employee",
     "Update Employee",
     "Show All Employees",
-    "Delete an Employee",
+    //"View all departments",
+    //"View all roles",
+    //"Add Department",
+    "Add a role",
   ],
 };
+
+const addARole = () => {
+  db.query('SELECT * FROM department').then(data => {
+    const departments = data.map(dep => ({name: dep.name, value: dep.id}))
+    const questions = [
+      {
+        name: "title",
+        message: "Hello, What is the title of the role?",
+        type: "input",
+        
+      },
+      {
+        name: "salary",
+        message: "Hello, What is the salary of the role?",
+        type: "input",
+      },
+      {
+        name: "department_id",
+        message: "Hello, What is the department of the role?",
+        type: "list",
+        choices: [...departments],
+      },
+    
+    ]
+    inquirer.prompt (questions) .then (res => {
+      db.query('INSERT INTO role SET ?', res).then(()=>{
+        console.log("---Role Created---")
+        setTimeout(start, 3000)
+      })
+    })
+  })
+}
+
+const updateEmployee = () => {
+  db.query('SELECT id,title FROM role') .then((data) => {
+      const availableRoles = data.map(role => ({name: role.title, value: role.id}))
+    const questions = [
+      {
+        name: "id",
+        message: "Hello, Which employee ID would you like to update?",
+        type: "input",
+        
+      },
+      {
+        name: "role",
+        message: "Hello, What is the employee's new role?",
+        type: "list",
+        choices: [...availableRoles],
+      },
+    
+    ]
+    inquirer.prompt (questions) .then ((response) => {
+    db.query('UPDATE employee SET role_id = ? WHERE id = ?', [response.role, response.id]) .then(() => {
+      setTimeout(start, 3000)
+    })
+    })
+  })
+}
+//const viewAllRoles = 
 
 const showAllEmployees = () => {
   //make a call to the db, and show all employees
@@ -95,6 +157,20 @@ function start() {
         return showAllEmployees();
       case "Add Employee":
         return addEmployee();
+      case "Update Employee":
+        return updateEmployee();
+      case "Delete an Employee":
+       return deleteAnEmployee();
+     
+       case "View all departments":
+        return viewAllDepartments();
+      case "View all roles":
+        return viewAllRoles();
+      case "Add Department":
+        return addDepartments();
+      case "Add a role":
+        return addARole();
+
     }
   });
 }
