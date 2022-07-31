@@ -9,22 +9,22 @@ const startMenu = {
     "Add Employee",
     "Update Employee",
     "Show All Employees",
-    //"View all departments",
-    //"View all roles",
-    //"Add Department",
+    "View all departments",
+    "View all roles",
+    "Add Department",
     "Add a role",
-  ],
+  ]
 };
 
 const addARole = () => {
   db.query('SELECT * FROM department').then(data => {
-    const departments = data.map(dep => ({name: dep.name, value: dep.id}))
+    const departments = data.map(dep => ({ name: dep.name, value: dep.id }))
     const questions = [
       {
         name: "title",
         message: "Hello, What is the title of the role?",
         type: "input",
-        
+
       },
       {
         name: "salary",
@@ -37,10 +37,10 @@ const addARole = () => {
         type: "list",
         choices: [...departments],
       },
-    
+
     ]
-    inquirer.prompt (questions) .then (res => {
-      db.query('INSERT INTO role SET ?', res).then(()=>{
+    inquirer.prompt(questions).then(res => {
+      db.query('INSERT INTO role SET ?', res).then(() => {
         console.log("---Role Created---")
         setTimeout(start, 3000)
       })
@@ -49,14 +49,14 @@ const addARole = () => {
 }
 
 const updateEmployee = () => {
-  db.query('SELECT id,title FROM role') .then((data) => {
-      const availableRoles = data.map(role => ({name: role.title, value: role.id}))
+  db.query('SELECT id,title FROM role').then((data) => {
+    const availableRoles = data.map(role => ({ name: role.title, value: role.id }))
     const questions = [
       {
         name: "id",
         message: "Hello, Which employee ID would you like to update?",
         type: "input",
-        
+
       },
       {
         name: "role",
@@ -64,12 +64,12 @@ const updateEmployee = () => {
         type: "list",
         choices: [...availableRoles],
       },
-    
+
     ]
-    inquirer.prompt (questions) .then ((response) => {
-    db.query('UPDATE employee SET role_id = ? WHERE id = ?', [response.role, response.id]) .then(() => {
-      setTimeout(start, 3000)
-    })
+    inquirer.prompt(questions).then((response) => {
+      db.query('UPDATE employee SET role_id = ? WHERE id = ?', [response.role, response.id]).then(() => {
+        setTimeout(start, 3000)
+      })
     })
   })
 }
@@ -88,6 +88,40 @@ const showAllEmployees = () => {
     setTimeout(start, 3000);
   });
 };
+
+const viewAllDepartments = () => {
+  db.query('SELECT * FROM department').then((results) => {
+    console.log("--------------  DEPARTMENT  --------------");
+    console.table(results);
+    console.log("--------------  DEPARTMENT  --------------");
+
+    setTimeout(start, 3000);
+  });
+};
+
+const viewAllRoles = () => {
+  db.query('SELECT * FROM role').then((results) => {
+    console.log("--------------  ROLE  --------------");
+    console.table(results);
+    console.log("--------------  ROLE  --------------");
+
+    setTimeout(start, 3000);
+  });
+};
+
+const addDepartments = () => {
+
+  const addDepartmentsPrompt = {
+    name: "name",
+    message: "What is the department you want to add?",
+  }
+  inquirer.prompt(addDepartmentsPrompt).then((results) => {
+    console.log("RESULTS --- ", results);
+
+    db.query("INSERT INTO department SET ?", results).then(() => setTimeout(start, 3000))
+  })
+
+}
 
 const addEmployee = () => {
   //before writing query, we need inquirer to gather info on new employee
@@ -160,9 +194,9 @@ function start() {
       case "Update Employee":
         return updateEmployee();
       case "Delete an Employee":
-       return deleteAnEmployee();
-     
-       case "View all departments":
+        return deleteAnEmployee();
+
+      case "View all departments":
         return viewAllDepartments();
       case "View all roles":
         return viewAllRoles();
